@@ -1,47 +1,50 @@
-# Etiketa
+# SuperTags Backend
 
-## ROTEIRO DESENVOLVIMENTO
+## Instalação
 
-### BACKEND: Eurico, Junior Maia
+### 1. Instalar Dependências
 
-#### 1 - Etapa (11/06/2024):
+Primeiro, instale as dependências do projeto. Você pode usar `yarn` ou `npm`.
 
-[] contexto delimitado auth em `packages/auth`
+#### Usando Yarn
 
-[] Criar provedores: Criptografia, Token, Usuario
+```yarn install```
 
-[] Criar modelos ricos: Usuario, SenhaForte, Email, NomePessoa
+#### Usando NPM
 
-[] usuario com: senha forte obrigatorio (1 caractere especial, 1 numero, 1 maiuscula e 1 minuscula com minimo de 8 caracteres )
+```npm install```
 
-[] usuario com: id gerado por uuid, e-mail único
+#### Configurar Variáveis de Ambiente
 
-[] criptografar senha usuario
+Copie o arquivo .env.example para .env e ajuste as variáveis de ambiente conforme necessário
 
-[] criar casos de uso: RegistrarUsuario, LoginUsuario, LogoutUsuario
+```cp .env.example .env```
 
-[] criar adaptadores: BancoDadosUsuarioDTO, JWTAdpter, Criptografia
+Edite o arquivo .env com suas configurações específicas.
 
-[] persistir dados usuario em um banco de dados
+#### Rodando a Aplicação com Docker
 
-[] gerar um token para validação de usuário
+- Construir e Iniciar o Docker Compose
+Certifique-se de que o Docker e o Docker Compose estão instalados e funcionando no seu sistema. Para construir e iniciar os serviços, use o comando abaixo:
 
-> APIs estarao em `apps/backend/`
+```docker-compose up --build```
 
-[] endpoint criar usuario (nome, email, senha): `api.etiketa.com.br/v1/accounts/signup`
+#### Acessar a Documentação da API
 
-[] endpoint login (email, senha): `api.etiketa.com.br/v1/accounts/login`
+Após iniciar os serviços, você pode acessar a documentação da API no navegador:
 
-[] endpoint logout: `api.etiketa.com.br/v1/accounts/logout`
+```http://localhost:4040/api-docs```
 
-#### 2 - Etapa (19/06/2024):
+#### Outras Informações
 
-#### 3 - Etapa (26/06/2024):
+Certifique-se de que as portas configuradas no docker-compose.yml não estejam em uso por outros serviços.
+O banco de dados PostgreSQL será iniciado e persistirá os dados no diretório ./data.
 
-#### 4 - Etapa (03/07/2024):
+#### Estrutura do Projeto
 
-#### 5 - Etapa (11/06/2024)_OPCIONAL_:
-
-#### 6 - Conclusão (17/07/2024)
-
-> Ouvinte: Madson, Einstein Xavier
+```bash
+src/ - Código-fonte da aplicação.
+docker-compose.yml - Configuração do Docker Compose.
+.env - Arquivo de configuração de variáveis de ambiente.
+.env.example - Exemplo de arquivo de configuração de variáveis de ambiente.
+```
