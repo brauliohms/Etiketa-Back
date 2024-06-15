@@ -1,9 +1,9 @@
 import Account from '../../domain/Account';
-
 import PasswordHasher from '../utils/Hasher';
 import ApplicationError from '../erros/ApplicationError';
 import AccountsRepository from '../repositories/AccountRepository';
 import UserAlreadyExists from '../erros/UserAlreadyExists';
+import BodyValidationError from '../erros/BodyValidationError';
 
 export default class CreateAccountUseCase {
   constructor(
@@ -25,11 +25,10 @@ export default class CreateAccountUseCase {
         account.withHashedPassword(hashedPassword);
       await this.accountRepository.create(accountWithHashedPassword);
     } catch (error) {
-      if (error instanceof ApplicationError) {
+      if (error instanceof BodyValidationError)
+        throw new BodyValidationError(error.message);
+      if (error instanceof ApplicationError)
         throw new UserAlreadyExists(error.message);
-      } else {
-        console.error('Unexpected error:', error);
-      }
     }
   }
 }

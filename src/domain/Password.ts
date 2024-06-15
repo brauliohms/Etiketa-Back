@@ -4,7 +4,9 @@ import BodyValidationError from '../application/erros/BodyValidationError';
 export default class Password {
   constructor(readonly value: string, readonly isHashed: boolean = false) {
     if (!isHashed && this.isInvalidPassword(value))
-      throw new BodyValidationError('Invalid password');
+      throw new BodyValidationError(
+        'A senha deve conter pelo menos 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.'
+      );
   }
 
   isInvalidPassword(value: string): boolean {

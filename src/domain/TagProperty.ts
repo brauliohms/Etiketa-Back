@@ -1,10 +1,13 @@
 import BodyValidationError from '../application/erros/BodyValidationError';
 
+export type PropertyType = 'text' | 'number' | 'date';
+
 export class TagProperty {
   constructor(
+    readonly id: string,
     readonly key: string,
     readonly value: string,
-    readonly type: string
+    readonly type: PropertyType
   ) {
     if (this.isInvalidKey(key))
       throw new BodyValidationError('Invalid property key');
@@ -22,8 +25,17 @@ export class TagProperty {
     return value.trim().length === 0;
   }
 
-  isInvalidType(value: string): boolean {
-    const validTypes = ['text', 'number', 'date'];
+  isInvalidType(value: PropertyType): boolean {
+    const validTypes: PropertyType[] = ['text', 'number', 'date'];
     return !validTypes.includes(value);
+  }
+
+  static restore(
+    id: string,
+    key: string,
+    value: string,
+    type: PropertyType
+  ): TagProperty {
+    return new TagProperty(id, key, value, type);
   }
 }
