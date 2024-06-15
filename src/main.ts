@@ -28,13 +28,17 @@ EnvChecker.checkEnvVariables([
 
 // infra bootstrap
 const expressHttpServer = new ExpressAdapter();
+expressHttpServer.use(cors());
 const jwtAuth = new JwtTokenService();
 const bcryptHasher = new BcryptPasswordHasher();
 const authMiddleware = new AuthMiddleware(jwtAuth);
 
 // account bootstrap
 const accountRepository = new KnexAccountsRepository();
-const createAccountUseCase = new CreateAccountUseCase(accountRepository);
+const createAccountUseCase = new CreateAccountUseCase(
+  accountRepository,
+  bcryptHasher
+);
 const authenticateAccountUseCase = new AuthenticateUseCase(
   accountRepository,
   jwtAuth,
@@ -69,9 +73,4 @@ const swaggerFilePath = path.resolve(
 expressHttpServer.setupSwagger(swaggerFilePath);
 
 // server bootstrap
-expressHttpServer.use(
-  cors({
-    origin: '*',
-  })
-);
 expressHttpServer.listen(Number(process.env.PORT));

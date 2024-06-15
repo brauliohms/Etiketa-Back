@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-
 import Email from './Email';
 import Name from './Name';
 import Password from './Password';
@@ -41,11 +40,12 @@ export default class Account {
     );
   }
 
-  // static toJson(accountId: string, name: string, email: string) {
-  //   return {
-  //     accountId,
-  //     name,
-  //     email,
-  //   };
-  // }
+  withHashedPassword(hashedPassword: string): Account {
+    return new Account(
+      this.accountId,
+      this.name,
+      this.email,
+      new Password(hashedPassword, true)
+    );
+  }
 }

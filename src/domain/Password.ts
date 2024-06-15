@@ -1,9 +1,10 @@
 import * as bcrypt from 'bcryptjs';
+import BodyValidationError from '../application/erros/BodyValidationError';
 
 export default class Password {
   constructor(readonly value: string, readonly isHashed: boolean = false) {
     if (!isHashed && this.isInvalidPassword(value))
-      throw new Error('Invalid password');
+      throw new BodyValidationError('Invalid password');
   }
 
   isInvalidPassword(value: string): boolean {
