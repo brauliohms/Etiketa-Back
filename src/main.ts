@@ -14,6 +14,7 @@ import { KnexTagsRepository } from "./infra/repositories/TagRepository";
 import CreateTagUseCase from "./application/usecases/CreateTag";
 import TagController from "./infra/controllers/TagController";
 import GetTagUseCase from "./application/usecases/GetTagById";
+import GetAllTagsUseCase from "./application/usecases/GetAllTags";
 
 EnvChecker.checkEnvVariables([
   "PORT",
@@ -28,17 +29,17 @@ EnvChecker.checkEnvVariables([
 
 // infra bootstrap
 const expressHttpServer = new ExpressAdapter();
-
-// cors bootstrap
 expressHttpServer.use(cors());
-
 const jwtAuth = new JwtTokenService();
 const bcryptHasher = new BcryptPasswordHasher();
 const authMiddleware = new AuthMiddleware(jwtAuth);
 
 // account bootstrap
 const accountRepository = new KnexAccountsRepository();
-const createAccountUseCase = new CreateAccountUseCase(accountRepository);
+const createAccountUseCase = new CreateAccountUseCase(
+  accountRepository,
+  bcryptHasher,
+);
 const authenticateAccountUseCase = new AuthenticateUseCase(
   accountRepository,
   jwtAuth,
@@ -55,10 +56,12 @@ new AccountController(
 const tagRepository = new KnexTagsRepository();
 const createTagUseCase = new CreateTagUseCase(tagRepository);
 const getTagsUseCase = new GetTagUseCase(tagRepository);
+const getAllTagsUseCase = new GetAllTagsUseCase(tagRepository);
 new TagController(
   expressHttpServer,
   createTagUseCase,
   getTagsUseCase,
+  getAllTagsUseCase,
   authMiddleware,
 );
 
@@ -72,10 +75,5 @@ const swaggerFilePath = path.resolve(
 );
 expressHttpServer.setupSwagger(swaggerFilePath);
 
-expressHttpServer.use(
-  cors({
-    origin: "*",
-  }),
-);
 // server bootstrap
 expressHttpServer.listen(Number(process.env.PORT));

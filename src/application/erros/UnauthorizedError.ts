@@ -1,11 +1,8 @@
-export default class UnauthorizedError extends Error {
-  public status: number;
+import ApplicationError from './ApplicationError';
 
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = 'UnauthorizedError';
-    this.message = message;
-    this.status = status;
-    Object.setPrototypeOf(this, UnauthorizedError.prototype);
+export default class UnauthorizedError extends ApplicationError {
+  constructor(message: string) {
+    super(message, 401);
+    this.name = 'Unauthorized Error';
   }
 }
