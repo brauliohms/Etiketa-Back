@@ -14,6 +14,7 @@ import { KnexTagsRepository } from './infra/repositories/TagRepository';
 import CreateTagUseCase from './application/usecases/CreateTag';
 import TagController from './infra/controllers/TagController';
 import GetTagUseCase from './application/usecases/GetTagById';
+import GetAllTagsUseCase from './application/usecases/GetAllTags';
 
 EnvChecker.checkEnvVariables([
   'PORT',
@@ -55,10 +56,12 @@ new AccountController(
 const tagRepository = new KnexTagsRepository();
 const createTagUseCase = new CreateTagUseCase(tagRepository);
 const getTagsUseCase = new GetTagUseCase(tagRepository);
+const getAllTagsUseCase = new GetAllTagsUseCase(tagRepository);
 new TagController(
   expressHttpServer,
   createTagUseCase,
   getTagsUseCase,
+  getAllTagsUseCase,
   authMiddleware
 );
 

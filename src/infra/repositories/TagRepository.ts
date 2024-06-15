@@ -25,9 +25,30 @@ export class KnexTagsRepository implements TagsRepository {
     }
   }
 
-  async findById(id: string): Promise<Tag | undefined> {
+  /* TODO: melhorar a tipagem depois */
+  async findAll(): Promise<any[] | null> {
+    const tags = await this.knex('tags');
+    if (!tags.length) return null;
+    const tagsIds = tags.map((tag) => tag.id);
+
+    const properties = await this.knex('tags_properties').whereIn(
+      'tag_id',
+      tagsIds
+    );
+
+    const tagsWithProperties = tags.map((tag) => {
+      return {
+        ...tag,
+        properties: properties.filter((property) => property.tag_id === tag.id),
+      };
+    });
+
+    return tagsWithProperties;
+  }
+
+  async findById(id: string): Promise<Tag | null> {
     const tagData = await this.knex('tags').where({ id }).first();
-    if (!tagData) return undefined;
+    if (!tagData) return null;
     const propertiesData = await this.knex('tags_properties').where({
       tag_id: id,
     });
@@ -37,7 +58,7 @@ export class KnexTagsRepository implements TagsRepository {
     return Tag.restore(tagData.id, tagData.parent_id, tagData.name, properties);
   }
 
-  update(id: string, data: Partial<Tag>): Promise<Tag | undefined> {
+  update(id: string, data: Partial<Tag>): Promise<Tag | null> {
     throw new Error('Method not implemented.');
   }
   delete(id: string): Promise<void> {
