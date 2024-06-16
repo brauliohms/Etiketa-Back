@@ -1,9 +1,10 @@
-import HttpServer from './HttpServer';
-import express, { Request, Response, NextFunction } from 'express';
-import morgan from 'morgan';
-import chalk from 'chalk';
-import swaggerUi from 'swagger-ui-express';
-import fs from 'node:fs';
+import express, { NextFunction, Request, Response } from "express";
+import morgan from "morgan";
+import HttpServer from "./HttpServer";
+// import chalk from 'chalk';
+import colors from "ansi-colors";
+import fs from "node:fs";
+import swaggerUi from "swagger-ui-express";
 
 export interface IRequest {
   body: any;
@@ -22,31 +23,31 @@ export default class ExpressAdapter implements HttpServer {
   constructor() {
     this.app = express();
     this.app.use(express.json());
-    this.isDevelopment = process.env.NODE_ENV === 'development';
+    this.isDevelopment = process.env.NODE_ENV === "development";
     this.setupLogging();
   }
 
   private setupLogging() {
     const logFormat =
-      ':method :url :status :res[content-length] - :response-time ms';
+      ":method :url :status :res[content-length] - :response-time ms";
     const colorizedFormat = (tokens: any, req: any, res: any) => {
       const status = tokens.status(req, res);
       const statusColor =
         status >= 500
-          ? 'red'
+          ? "red"
           : status >= 400
-          ? 'yellow'
+          ? "yellow"
           : status >= 300
-          ? 'cyan'
-          : 'green';
+          ? "cyan"
+          : "green";
 
       return [
-        chalk.bold(tokens.method(req, res)),
-        chalk.blue(tokens.url(req, res)),
-        chalk[statusColor](status),
-        tokens['response-time'](req, res),
-        'ms',
-      ].join(' ');
+        colors.bold(tokens.method(req, res)),
+        colors.blue(tokens.url(req, res)),
+        colors[statusColor](status),
+        tokens["response-time"](req, res),
+        "ms",
+      ].join(" ");
     };
 
     this.app.use(morgan(colorizedFormat));
@@ -87,14 +88,14 @@ export default class ExpressAdapter implements HttpServer {
 
   setupSwagger(swaggerFilePath: string): void {
     const swaggerDocument = JSON.parse(
-      fs.readFileSync(swaggerFilePath, 'utf8')
+      fs.readFileSync(swaggerFilePath, "utf8")
     );
     this.app.use(
-      '/api-docs',
+      "/api-docs",
       swaggerUi.serve,
       swaggerUi.setup(swaggerDocument, {
         swaggerOptions: {
-          url: 'http://localhost:3000/api-docs/swagger.json',
+          url: "http://localhost:3000/api-docs/swagger.json",
         },
       })
     );
@@ -102,16 +103,16 @@ export default class ExpressAdapter implements HttpServer {
 
   private logRoutes() {
     if (this.isDevelopment) {
-      console.log(chalk.yellow('Registered Routes:'));
+      console.log(colors.yellow("Registered Routes:"));
       this.routes.forEach((route) => {
-        console.log(`${chalk.green(route.method)} ${chalk.blue(route.url)}`);
+        console.log(`${colors.green(route.method)} ${colors.blue(route.url)}`);
       });
     }
   }
 
   listen(port: number): void {
     this.app.listen(port, () => {
-      console.log(chalk.green(`Server running at http://localhost:${port}`));
+      console.log(colors.green(`Server running at http://localhost:${port}`));
       this.logRoutes(); // Log as rotas registradas ao iniciar o servidor, apenas no modo de desenvolvimento
     });
   }
