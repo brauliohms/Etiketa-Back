@@ -1,5 +1,5 @@
-import { Tag } from '../../domain/Tag';
-import TagsRepository from '../repositories/TagRepository';
+import Tag from "../../domain/Tag";
+import TagsRepository from "../repositories/TagRepository";
 
 export default class GetTagUseCase {
   constructor(private readonly tagsRepository: TagsRepository) {}
