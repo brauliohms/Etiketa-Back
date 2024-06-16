@@ -1,51 +1,64 @@
 import { randomUUID } from 'crypto';
-import { TagName } from './TagName';
-import { TagProperty } from './TagProperty';
+import { PropertyType, TagProperty } from './TagProperty';
 
-export class Tag {
-  id: string;
-  parentId: string | null;
-  name: string;
-  description?: string;
-  properties: TagProperty[];
-
+export default class Tag {
   constructor(
-    id: string,
-    parentId: string | null,
-    name: string,
-    properties: TagProperty[]
-  ) {
-    this.id = id;
-    this.parentId = parentId;
-    this.name = name;
-    this.properties = properties;
-  }
+    public id: string,
+    public name: string,
+    public parentId: string | null,
+    public description: string | null,
+    public properties: TagProperty[]
+  ) {}
 
   static create(
     name: string,
-    properties: { key: string; value: string; type: string }[]
-  ): Tag {
-    const id = randomUUID();
+    properties: { key: string; value: string; type: PropertyType }[],
+    parentId?: string | null,
+    description?: string | null
+  ) {
     const tagProperties = properties.map(
-      (prop) => new TagProperty(prop.key, prop.value, prop.type)
+      (p) => new TagProperty(randomUUID(), p.key, p.value, p.type)
     );
-    return new Tag(id, null, name, tagProperties);
+    return new Tag(
+      randomUUID(),
+      name,
+      parentId || null,
+      description || '',
+      tagProperties
+    );
   }
 
   static restore(
     id: string,
-    parentId: string | null,
     name: string,
-    properties: { key: string; value: string; type: string }[]
-  ): Tag {
-    const tagProperties = properties.map(
-      (prop) => new TagProperty(prop.key, prop.value, prop.type)
+    parentId: string | null,
+    description: string | null,
+    properties: { id: string; key: string; value: string; type: PropertyType }[]
+  ) {
+    const tagProperties = properties.map((p) =>
+      TagProperty.restore(p.id, p.key, p.value, p.type)
     );
-    return new Tag(id, parentId, name, tagProperties);
+    return new Tag(id, name, parentId, description, tagProperties);
   }
 
-  addProperty(key: string, value: string, type: string) {
-    const property = new TagProperty(key, value, type);
-    this.properties.push(property);
+  update(
+    name: string,
+    parentId: string | null,
+    description: string | null,
+    properties: {
+      id?: string;
+      key: string;
+      value: string;
+      type: PropertyType;
+    }[]
+  ) {
+    this.name = name;
+    this.parentId = parentId;
+    this.description = description || '';
+
+    this.properties = properties.map((p) => {
+      const id = p.id || randomUUID();
+      return TagProperty.restore(id, p.key, p.value, p.type);
+    });
   }
 }

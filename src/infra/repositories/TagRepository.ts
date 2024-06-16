@@ -1,5 +1,6 @@
+import { Knex } from 'knex';
 import TagsRepository from '../../application/repositories/TagRepository';
-import { Tag } from '../../domain/Tag';
+import Tag from '../../domain/Tag';
 import { TagProperty } from '../../domain/TagProperty';
 import { KnexDatabase } from '../database/knex/KnexDatabase';
 
@@ -53,15 +54,56 @@ export class KnexTagsRepository implements TagsRepository {
       tag_id: id,
     });
     const properties = propertiesData.map(
-      (prop) => new TagProperty(prop.key, prop.value, prop.type)
+      (prop) => new TagProperty(prop.id, prop.key, prop.value, prop.type)
     );
-    return Tag.restore(tagData.id, tagData.parent_id, tagData.name, properties);
+    return Tag.restore(
+      tagData.id,
+      tagData.name,
+      tagData.parent_id,
+      tagData.name,
+      properties
+    );
   }
 
-  update(id: string, data: Partial<Tag>): Promise<Tag | null> {
-    throw new Error('Method not implemented.');
+  async update(id: string, tag: Tag): Promise<void> {
+    await this.knex.transaction(async (trx) => {
+      await trx('tags').where({ id }).update({
+        name: tag.name,
+        parent_id: tag.parentId,
+        description: tag.description,
+        updated_at: new Date(),
+      });
+      await trx('tags_properties').where({ tag_id: id }).del();
+      for (const property of tag.properties) {
+        await trx('tags_properties').insert({
+          id: property.id,
+          tag_id: id,
+          key: property.key,
+          value: property.value,
+          type: property.type,
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      }
+    });
   }
-  delete(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async delete(id: string): Promise<void> {
+    await this.knex.transaction(async (trx) => {
+      await this.deleteTagAndChildren(id, trx);
+    });
+  }
+
+  private async deleteTagAndChildren(
+    id: string,
+    trx: Knex.Transaction
+  ): Promise<void> {
+    const childTags = await trx('tags').where({ parent_id: id });
+    for (const childTag of childTags) {
+      await this.deleteTagAndChildren(childTag.id, trx);
+    }
+
+    await trx('tags_properties').where({ tag_id: id }).del();
+    await trx('tags').where({ id }).del();
   }
 }
